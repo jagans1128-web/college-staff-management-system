@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { LogOut, Search, RefreshCw } from 'lucide-react';
+import { API_BASE_URL } from '../../config';
 
 export default function StudentDashboard({ auth, setAuth }) {
   const [staffList, setStaffList] = useState([]);
@@ -10,7 +11,7 @@ export default function StudentDashboard({ auth, setAuth }) {
   const fetchStaff = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get('http://localhost:5000/api/student/staff', {
+      const { data } = await axios.get(`${API_BASE_URL}/api/student/staff`, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       setStaffList(data);

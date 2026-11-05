@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { LogOut, PlusCircle, UserPlus, Calendar, Trash2, Search, X, FileText, ExternalLink, ChevronRight, Award, Edit3, Check, XCircle, Clock } from 'lucide-react';
 import moment from 'moment';
+import { API_BASE_URL } from '../../config';
 
 export default function AdminDashboard({ auth, setAuth }) {
   const [stats, setStats] = useState({});
@@ -72,7 +73,7 @@ export default function AdminDashboard({ auth, setAuth }) {
 
   const fetchStats = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/admin/dashboard', {
+      const { data } = await axios.get(`${API_BASE_URL}/api/admin/dashboard`, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       setStats(data);
@@ -83,7 +84,7 @@ export default function AdminDashboard({ auth, setAuth }) {
 
   const fetchStaff = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/admin/staff', {
+      const { data } = await axios.get(`${API_BASE_URL}/api/admin/staff`, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       setStaffList(data);
@@ -97,7 +98,7 @@ export default function AdminDashboard({ auth, setAuth }) {
 
   const fetchAllTasks = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/admin/tasks', {
+      const { data } = await axios.get(`${API_BASE_URL}/api/admin/tasks`, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       setAllTasks(data);
@@ -108,7 +109,7 @@ export default function AdminDashboard({ auth, setAuth }) {
 
   const fetchLeaveRequests = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/admin/leaves', {
+      const { data } = await axios.get(`${API_BASE_URL}/api/admin/leaves`, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       setLeaveRequests(data);
@@ -120,7 +121,7 @@ export default function AdminDashboard({ auth, setAuth }) {
   const handleUpdateLeaveStatus = async (leaveId, newStatus) => {
     const remark = leaveRemarks[leaveId] || '';
     try {
-      await axios.put(`http://localhost:5000/api/admin/leaves/${leaveId}`, 
+      await axios.put(`${API_BASE_URL}/api/admin/leaves/${leaveId}`, 
         { status: newStatus, adminRemark: remark },
         { headers: { Authorization: `Bearer ${auth.token}` } }
       );
@@ -196,7 +197,7 @@ export default function AdminDashboard({ auth, setAuth }) {
   const handleAddStaff = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/admin/staff', newStaff, {
+      await axios.post(`${API_BASE_URL}/api/admin/staff`, newStaff, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       alert('Staff added successfully!');
@@ -221,7 +222,7 @@ export default function AdminDashboard({ auth, setAuth }) {
   const handleDeleteStaff = async (staffId, staffName) => {
     if (!window.confirm(`Are you sure you want to remove staff member: ${staffName}?`)) return;
     try {
-      await axios.delete(`http://localhost:5000/api/admin/staff/${staffId}`, {
+      await axios.delete(`${API_BASE_URL}/api/admin/staff/${staffId}`, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       alert('Staff member removed successfully!');
@@ -243,7 +244,7 @@ export default function AdminDashboard({ auth, setAuth }) {
     e.preventDefault();
     if (!selectedStaff) return;
     try {
-      await axios.put(`http://localhost:5000/api/admin/staff/${selectedStaff._id}/incharge`, 
+      await axios.put(`${API_BASE_URL}/api/admin/staff/${selectedStaff._id}/incharge`, 
         { incharge: inchargeInput },
         { headers: { Authorization: `Bearer ${auth.token}` } }
       );
@@ -260,7 +261,7 @@ export default function AdminDashboard({ auth, setAuth }) {
     setSelectedStaff(staff);
     setNewSlot(prev => ({ ...prev, department: staff.department || 'CSE' }));
     try {
-      const { data } = await axios.get(`http://localhost:5000/api/admin/timetable/${staff._id}`, {
+      const { data } = await axios.get(`${API_BASE_URL}/api/admin/timetable/${staff._id}`, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       setStaffTimetable(data);
@@ -274,13 +275,13 @@ export default function AdminDashboard({ auth, setAuth }) {
     e.preventDefault();
     if (!selectedStaff) return;
     try {
-      await axios.post('http://localhost:5000/api/admin/timetable', 
+      await axios.post(`${API_BASE_URL}/api/admin/timetable`, 
         { ...newSlot, staff: selectedStaff._id },
         { headers: { Authorization: `Bearer ${auth.token}` } }
       );
       alert('Timetable slot added!');
       // Refresh staff timetable
-      const { data } = await axios.get(`http://localhost:5000/api/admin/timetable/${selectedStaff._id}`, {
+      const { data } = await axios.get(`${API_BASE_URL}/api/admin/timetable/${selectedStaff._id}`, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       setStaffTimetable(data);
@@ -291,7 +292,7 @@ export default function AdminDashboard({ auth, setAuth }) {
 
   const handleDeleteSlot = async (slotId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/admin/timetable/${slotId}`, {
+      await axios.delete(`${API_BASE_URL}/api/admin/timetable/${slotId}`, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       setStaffTimetable(prev => prev.filter(s => s._id !== slotId));
@@ -304,7 +305,7 @@ export default function AdminDashboard({ auth, setAuth }) {
   const handleCreateTask = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/admin/tasks', newTask, {
+      await axios.post(`${API_BASE_URL}/api/admin/tasks`, newTask, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       alert('Task assigned successfully!');

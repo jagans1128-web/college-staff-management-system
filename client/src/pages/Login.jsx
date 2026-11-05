@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { GraduationCap, ShieldCheck, UserCheck, User } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export default function Login({ setAuth }) {
   const [email, setEmail] = useState('');
@@ -11,7 +12,7 @@ export default function Login({ setAuth }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
       localStorage.setItem('auth', JSON.stringify(res.data));
       setAuth(res.data);
       navigate(`/${res.data.role}/dashboard`);

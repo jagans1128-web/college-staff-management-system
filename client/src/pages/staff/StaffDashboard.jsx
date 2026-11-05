@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { LogOut, UserCheck, UserX, Upload, FileText, ExternalLink, CheckCircle, Calendar, Clock, Send, X, AlertCircle } from 'lucide-react';
 import moment from 'moment';
+import { API_BASE_URL } from '../../config';
 
 export default function StaffDashboard({ auth, setAuth }) {
   const [profile, setProfile] = useState(null);
@@ -29,7 +30,7 @@ export default function StaffDashboard({ auth, setAuth }) {
 
   const fetchProfile = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/staff/profile', {
+      const { data } = await axios.get(`${API_BASE_URL}/api/staff/profile`, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       setProfile(data);
@@ -43,7 +44,7 @@ export default function StaffDashboard({ auth, setAuth }) {
 
   const fetchTasks = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/staff/tasks', {
+      const { data } = await axios.get(`${API_BASE_URL}/api/staff/tasks`, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       setTasks(data);
@@ -54,7 +55,7 @@ export default function StaffDashboard({ auth, setAuth }) {
 
   const fetchLeaves = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/staff/leave', {
+      const { data } = await axios.get(`${API_BASE_URL}/api/staff/leave`, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       setLeaves(data);
@@ -70,7 +71,7 @@ export default function StaffDashboard({ auth, setAuth }) {
       return;
     }
     try {
-      await axios.post('http://localhost:5000/api/staff/leave', newLeave, {
+      await axios.post(`${API_BASE_URL}/api/staff/leave`, newLeave, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
       alert('Leave application submitted successfully! Pending Admin Approval.');
@@ -89,7 +90,7 @@ export default function StaffDashboard({ auth, setAuth }) {
 
   const toggleAttendance = async (newStatus) => {
     try {
-      const { data } = await axios.put('http://localhost:5000/api/staff/status', 
+      const { data } = await axios.put(`${API_BASE_URL}/api/staff/status`, 
         { attendanceStatus: newStatus },
         { headers: { Authorization: `Bearer ${auth.token}` } }
       );
@@ -103,7 +104,7 @@ export default function StaffDashboard({ auth, setAuth }) {
   const updateTaskStatus = async (taskId, newStatus) => {
     const submissionText = submissions[taskId] || '';
     try {
-      await axios.put(`http://localhost:5000/api/staff/tasks/${taskId}`, 
+      await axios.put(`${API_BASE_URL}/api/staff/tasks/${taskId}`, 
         { status: newStatus, submission: submissionText },
         { headers: { Authorization: `Bearer ${auth.token}` } }
       );
@@ -126,7 +127,7 @@ export default function StaffDashboard({ auth, setAuth }) {
 
     setUploading({ ...uploading, [taskId]: true });
     try {
-      await axios.post(`http://localhost:5000/api/staff/tasks/${taskId}/upload`, formData, {
+      await axios.post(`${API_BASE_URL}/api/staff/tasks/${taskId}/upload`, formData, {
         headers: { 
           Authorization: `Bearer ${auth.token}`,
           'Content-Type': 'multipart/form-data'
@@ -144,7 +145,7 @@ export default function StaffDashboard({ auth, setAuth }) {
 
   const logout = async () => {
     try {
-      await axios.post('http://localhost:5000/api/auth/logout', {}, {
+      await axios.post(`${API_BASE_URL}/api/auth/logout`, {}, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
     } catch (e) {
