@@ -17,9 +17,17 @@ app.use(cors());
 app.use(express.json());
 
 // --- UPLOADS DIRECTORY & STATIC SERVING ---
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+const os = require('os');
+let uploadsDir = path.join(__dirname, 'uploads');
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (e) {
+  uploadsDir = path.join(os.tmpdir(), 'uploads');
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
 }
 app.use('/uploads', express.static(uploadsDir));
 
@@ -315,7 +323,8 @@ app.post('/api/staff/tasks/:id/upload', protect, authorize('staff'), upload.sing
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
-    const fileUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+    const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+    const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
     const task = await Task.findByIdAndUpdate(
       req.params.id, 
       { 
@@ -375,4 +384,8 @@ app.get('/api/student/staff', protect, authorize('student'), async (req, res) =>
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+module.exports = app;
