@@ -383,8 +383,25 @@ app.get('/api/student/staff', protect, authorize('student'), async (req, res) =>
   res.json(staffWithActivity);
 });
 
+// --- HEALTH CHECK ---
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok', uptime: process.uptime() });
+});
+
+// --- SERVE CLIENT STATIC FILES (FOR SINGLE SERVICE DEPLOYMENT) ---
+const clientDistPath = path.join(__dirname, '../client/dist');
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return next();
+    }
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
+
 const PORT = process.env.PORT || 5000;
-if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+if (!process.env.VERCEL) {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
