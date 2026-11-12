@@ -13,7 +13,24 @@ const moment = require('moment');
 
 dotenv.config();
 const app = express();
-app.use(cors());
+// --- CORS CONFIGURATION ---
+const allowedOrigins = [
+  'https://client-jagan-web.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Postman, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error(`CORS policy: Origin ${origin} is not allowed`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 
 // --- UPLOADS DIRECTORY & STATIC SERVING ---
@@ -383,7 +400,7 @@ app.get('/api/student/staff', protect, authorize('student'), async (req, res) =>
   res.json(staffWithActivity);
 });
 
-// --- HEALTH CHECK ---
+// --- HEALTH CHECK & ROOT STATUS ---
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', uptime: process.uptime() });
 });
@@ -397,6 +414,18 @@ if (fs.existsSync(clientDistPath)) {
       return next();
     }
     res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+} else {
+  // If frontend is not bundled with backend, show helpful API root info
+  app.get('/', (req, res) => {
+    res.json({
+      status: 'online',
+      message: 'College Staff Management API is running successfully on Render!',
+      endpoints: {
+        health: '/api/health',
+        login: '/api/auth/login'
+      }
+    });
   });
 }
 
